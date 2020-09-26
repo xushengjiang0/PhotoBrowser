@@ -1,0 +1,13 @@
+use_frameworks!
+
+platform :ios, '8.0'
+
+target 'JXPhotoBrowser_Example' do
+  pod 'JXPhotoBrowser', :path => '../'
+
+  target 'JXPhotoBrowser_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end

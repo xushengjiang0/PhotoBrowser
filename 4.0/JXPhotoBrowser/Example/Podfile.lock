@@ -1,0 +1,16 @@
+PODS:
+  - JXPhotoBrowser (0.1.0)
+
+DEPENDENCIES:
+  - JXPhotoBrowser (from `../`)
+
+EXTERNAL SOURCES:
+  JXPhotoBrowser:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  JXPhotoBrowser: f303177f2135a32a159622963a0932e9649ae4eb
+
+PODFILE CHECKSUM: 0108c39944a7bb2139ec1f5b94c0233bc2d72316
+
+COCOAPODS: 1.7.5
