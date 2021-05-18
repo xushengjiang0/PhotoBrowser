@@ -1,0 +1,16 @@
+PODS:
+  - JXMediaBrowser (4.0.0)
+
+DEPENDENCIES:
+  - JXMediaBrowser (from `../`)
+
+EXTERNAL SOURCES:
+  JXMediaBrowser:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  JXMediaBrowser: aa49a7718fc4949c35b41bc730b19404fe07973a
+
+PODFILE CHECKSUM: d5d6f6841e9cbd7cb0c103bce8edd30a3851c25b
+
+COCOAPODS: 1.7.5

@@ -1,0 +1,6 @@
+framework module JXMediaBrowser {
+  umbrella header "JXMediaBrowser-umbrella.h"
+
+  export *
+  module * { export * }
+}

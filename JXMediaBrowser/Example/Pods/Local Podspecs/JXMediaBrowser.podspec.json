@@ -1,0 +1,22 @@
+{
+  "name": "JXMediaBrowser",
+  "version": "4.0.0",
+  "summary": "适用于iOS App的图片与视频浏览器。",
+  "description": "1. 适用于iOS App的图片与视频浏览器\n2. 基于Swift编写\n3. 架构设计高抽象，扩展灵活",
+  "homepage": "https://github.com/JiongXing/PhotoBrowser",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "JiongXing": "549235261@qq.com"
+  },
+  "source": {
+    "git": "https://github.com/JiongXing/PhotoBrowser.git",
+    "tag": "4.0.0"
+  },
+  "platforms": {
+    "ios": "9.0"
+  },
+  "source_files": "JXMediaBrowser/Classes/**/*"
+}

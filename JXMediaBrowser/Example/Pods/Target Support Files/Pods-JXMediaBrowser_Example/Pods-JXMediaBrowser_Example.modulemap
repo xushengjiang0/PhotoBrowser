@@ -1,0 +1,6 @@
+framework module Pods_JXMediaBrowser_Example {
+  umbrella header "Pods-JXMediaBrowser_Example-umbrella.h"
+
+  export *
+  module * { export * }
+}
