@@ -23,9 +23,28 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
     
     /// 沿着滑动方向的每项的长度。
     /// 说明：垂直于滑动方向的长度不可设置，其长度填满视图
-    /// - 如果同时实现了lengthForItem代理方法，则以代理方法取值为准
-    /// - 默认值0，在展示的时候会自动填满视图frame
-    public var itemLength: CGFloat = 0
+    /// - 如果同时实现了lengthForItemAtIndex代理方法，则以代理方法取值为准
+    /// - 默认值0，在展示的时候会自动填满视图
+    public var itemLength: CGFloat {
+        set {
+            self._itemLength = newValue
+        }
+        get {
+            if self._itemLength > 0 {
+                return self._itemLength
+            }
+            var length: CGFloat = 0
+            switch self.scrollDirection {
+            case .horizontal:
+                length = self.collectionView.bounds.width - self.padding.left - self.padding.right
+            case .vertical:
+                length = self.collectionView.bounds.height - self.padding.top - self.padding.bottom
+            }
+            return length
+        }
+    }
+    
+    private var _itemLength: CGFloat = 0
     
     /// 项间距
     public var itemSpacing: CGFloat {
@@ -58,16 +77,8 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
         }
     }
     
-    /// 是否开启翻页吸附。
-    /// 说明：当需求为每页展示一个项视图时，可以开启
-    public var isPagingEnabled: Bool {
-        set {
-            self.collectionView.isPagingEnabled = newValue
-        }
-        get {
-            self.collectionView.isPagingEnabled
-        }
-    }
+    /// 是否开启翻页模式。默认开启
+    public var isPagingEnabled: Bool = true
     
     // MARK: - 公开方法
     
@@ -89,7 +100,7 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
     }
     
     
-    // MARK: - 回调闭包
+    // MARK: - 刷新界面触发的回调
     
     /// 共有多少项
     public var numberOfItems: (() -> Int)?
@@ -100,20 +111,38 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
     /// 定制项长度
     public var lengthForItemAtIndex: ((_ listView: JXListView, _ index: Int) -> CGFloat)?
     
-    /// 点击选中某项
-    public var didSelectItemAtIndex: ((_ index: Int) -> Void)?
-    
     /// cell即将显示
     public var willDisplayCellAtIndex: ((_ cell: UICollectionViewCell, _ index: Int) -> Void)?
     
     /// cell已消失
     public var didEndDisplayingCellAtIndex: ((_ cell: UICollectionViewCell, _ index: Int) -> Void)?
     
+    
+    // MARK: - 交互触发的回调
+    
+    /// 点击选中某项
+    public var didSelectItemAtIndex: ((_ index: Int) -> Void)?
+    
     /// 视图滑动
     public var didScroll: ((_ scrollView: UIScrollView) -> Void)?
     
+    /// 即将开始拖动
     public var willBeginDragging: ((_ scrollView: UIScrollView) -> Void)?
     
+    /// 即将停止拖动
+    public var willEndDragging: ((_ scrollView: UIScrollView) -> Void)?
+    
+    /// 已经停止拖动
+    public var didEndDragging: ((_ scrollView: UIScrollView) -> Void)?
+    
+    /// 即将开始滑动减速
+    public var willBeginDecelerating: ((_ scrollView: UIScrollView) -> Void)?
+    
+    /// 已经停止滑动减速
+    public var didEndDecelerating: ((_ scrollView: UIScrollView) -> Void)?
+    
+    /// 已经停止滑动动画
+    public var didEndScrollingAnimation: ((_ scrollView: UIScrollView) -> Void)?
     
     // MARK: - UICollectionView DataSource
 
@@ -154,24 +183,21 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
     /// 项Size
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
-        let contentWidth = self.bounds.width - self.padding.left - self.padding.right
-        let contentHeight = self.bounds.height - self.padding.top - self.padding.bottom
-        
-        var length = self.itemLength
+        var length: CGFloat = 0
         if let block = self.lengthForItemAtIndex {
             length = block(self, indexPath.item)
+        } else {
+            length = self.itemLength
         }
         
         var size = CGSize.zero
         switch self.scrollDirection {
         case .horizontal:
-            length = length > 0 ? length : contentWidth
+            let contentHeight = self.bounds.height - self.padding.top - self.padding.bottom
             size = CGSize(width: length, height: contentHeight)
         case .vertical:
-            length = length > 0 ? length : contentHeight
+            let contentWidth = self.bounds.width - self.padding.left - self.padding.right
             size = CGSize(width: contentWidth, height: length)
-        default:
-            assert(false)
         }
         return size
     }
@@ -182,32 +208,63 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
         self.didScroll?(scrollView)
     }
     
+    /// drag前的cell的位置
+    private var indexOfCellBeforeDragging: Int = 0
+    
     public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        let pageWidth = self.itemLength + self.itemSpacing
+        let proportionalOffset = collectionView.contentOffset.x / pageWidth
+        indexOfCellBeforeDragging = Int(round(proportionalOffset))
         self.willBeginDragging?(scrollView)
     }
     
     public func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        
+        if self.isPagingEnabled {
+            self.scrollPaging(withVelocity: velocity, targetContentOffset: targetContentOffset)
+        }
+        self.willEndDragging?(scrollView);
+    }
+    
+    // 实现翻页效果
+    private func scrollPaging(withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        // 先停止当前滚动
+        targetContentOffset.pointee = collectionView.contentOffset
+        // 计算滚动条件
+        let pageWidth = self.itemLength + self.itemSpacing
+        let collectionViewItemCount = collectionView.numberOfItems(inSection: 0)
+        let proportionalOffset = collectionView.contentOffset.x / pageWidth
+        // 当前四舍五入后应位于哪个位置
+        let indexOfMajorCell = Int(round(proportionalOffset))
+        // 拖动加速度是否满足滑到下个位置
+        let swipeVelocityThreshold: CGFloat = 0.5
+        let hasEnoughVelocityToSlideToTheNextCell = indexOfCellBeforeDragging + 1 < collectionViewItemCount && velocity.x > swipeVelocityThreshold
+        let hasEnoughVelocityToSlideToThePreviousCell = indexOfCellBeforeDragging - 1 >= 0 && velocity.x < -swipeVelocityThreshold
+        let majorCellIsTheCellBeforeDragging = indexOfMajorCell == indexOfCellBeforeDragging
+        let didUseSwipeToSkipCell = majorCellIsTheCellBeforeDragging && (hasEnoughVelocityToSlideToTheNextCell || hasEnoughVelocityToSlideToThePreviousCell)
+        // 目标位置
+        var snapToIndex = indexOfMajorCell
+        if didUseSwipeToSkipCell {
+            snapToIndex = indexOfCellBeforeDragging + (hasEnoughVelocityToSlideToTheNextCell ? 1 : -1)
+        }
+        let safeIndex = max(0, min(snapToIndex, collectionViewItemCount - 1))
+        let indexPath = IndexPath(item: safeIndex, section: 0)
+        collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
     }
     
     public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        var currentCellOffset = self.collectionView.contentOffset
-//        currentCellOffset.x += self.itemSpacing / 2.0
-        if let indexPath = self.collectionView.indexPathForItem(at: currentCellOffset) {
-            self.collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
-        }
+        self.didEndDragging?(scrollView)
     }
     
     public func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-        
+        self.willBeginDecelerating?(scrollView)
     }
     
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        
+        self.didEndDecelerating?(scrollView)
     }
     
     public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        
+        self.didEndScrollingAnimation?(scrollView)
     }
     
     // MARK: - 初始化
@@ -235,11 +292,6 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
     open override func layoutSubviews() {
         super.layoutSubviews()
         self.collectionView.frame = self.bounds
-//        let width = self.bounds.width + self.itemSpacing
-//        self.collectionView.frame = CGRect(x: 0, y: 0, width: width, height: self.bounds.height)
-//        let number = self.collectionView.numberOfItems(inSection: 0)
-//        JXMediaUtil.log(content: "width:\(self.collectionView.frame.width * CGFloat(number))")
-        JXMediaUtil.log(content: "contentSize:\(self.collectionView.contentSize)")
     }
 
     private lazy var flowLayout: UICollectionViewFlowLayout = { [unowned self] in
@@ -264,12 +316,6 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
         }
         view.dataSource = self
         view.delegate = self
-//        view.addObserver(self, forKeyPath: "contentSize", options: [.new], context: nil)
         return view
     }()
-    
-//    open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-//        JXMediaUtil.log(content: "keyPath:\(keyPath ?? "")")
-//        print(change ?? [:])
-//    }
 }

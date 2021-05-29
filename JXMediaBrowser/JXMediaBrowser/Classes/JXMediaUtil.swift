@@ -20,7 +20,7 @@ public struct JXMediaUtil {
     /// 级别排序：normal > warning > error
     public static var allowLogLevel: LogLevel = .warning
     
-    public static func log(level: LogLevel = .normal, content: @autoclosure () -> Any) {
+    public static func log(level: LogLevel = .normal, message: @autoclosure () -> Any) {
         if level.rawValue <= self.allowLogLevel.rawValue {
             var name: String = ""
             switch level {
@@ -31,7 +31,7 @@ public struct JXMediaUtil {
             case .normal:
                 name = "normal"
             }
-            print("[JXPhotoBrowser] [\(name)]", content())
+            print("[JXPhotoBrowser] [\(name)]", message())
         }
     }
 }

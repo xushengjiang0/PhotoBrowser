@@ -13,8 +13,8 @@ class ListViewController: UIViewController {
     
     lazy var listView: JXListView = {
         let view = JXListView()
-        view.padding = UIEdgeInsetsMake(100, 0, 30, 0)
-        view.itemSpacing = 20
+        view.padding = UIEdgeInsetsMake(100, 20, 30, 20)
+        view.itemSpacing = 60
 //        view.isPagingEnabled = true
         return view
     }()
