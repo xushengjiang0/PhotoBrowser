@@ -23,7 +23,7 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
     
     /// 沿着滑动方向的每项的长度。
     /// 说明：垂直于滑动方向的长度不可设置，其长度填满视图
-    /// - 如果同时实现了lengthForItemAtIndex代理方法，则以代理方法取值为准
+    /// - 如果实现了lengthForItemAtIndex代理方法，则以代理方法为准
     /// - 默认值0，在展示的时候会自动填满视图
     public var itemLength: CGFloat {
         set {
@@ -44,6 +44,7 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
         }
     }
     
+    /// 私有成员变量，用于itemLength属性的存储
     private var _itemLength: CGFloat = 0
     
     /// 项间距
@@ -102,19 +103,19 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
     
     // MARK: - 刷新界面触发的回调
     
-    /// 共有多少项
+    /// 共有多少项。必选实现。
     public var numberOfItems: (() -> Int)?
     
-    /// 取指定项的视图
+    /// 取指定项的视图。必选实现。
     public var cellForItemAtIndex: ((_ listView: JXListView, _ index: Int) -> UICollectionViewCell)?
     
-    /// 定制项长度
+    /// 一项的长度，沿着滑动方向
     public var lengthForItemAtIndex: ((_ listView: JXListView, _ index: Int) -> CGFloat)?
     
-    /// cell即将显示
+    /// Cell即将显示
     public var willDisplayCellAtIndex: ((_ cell: UICollectionViewCell, _ index: Int) -> Void)?
     
-    /// cell已消失
+    /// Cell已消失
     public var didEndDisplayingCellAtIndex: ((_ cell: UICollectionViewCell, _ index: Int) -> Void)?
     
     
@@ -144,6 +145,7 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
     /// 已经停止滑动动画
     public var didEndScrollingAnimation: ((_ scrollView: UIScrollView) -> Void)?
     
+    
     // MARK: - UICollectionView DataSource
 
     open func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -151,7 +153,6 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
         if let block = self.numberOfItems {
             number = block()
         }
-        self.setNeedsLayout()
         return number
     }
     
@@ -227,9 +228,9 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
     
     // 实现翻页效果
     private func scrollPaging(withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        // 先停止当前滚动
+        // 先停止当前滑动
         targetContentOffset.pointee = collectionView.contentOffset
-        // 计算滚动条件
+        // 计算滑动条件
         let pageWidth = self.itemLength + self.itemSpacing
         let collectionViewItemCount = collectionView.numberOfItems(inSection: 0)
         let proportionalOffset = collectionView.contentOffset.x / pageWidth

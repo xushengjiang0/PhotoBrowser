@@ -11,6 +11,7 @@
 		4CFD7479F420DA4EF67849FDE0201A52 /* JXMediaBrowser-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = BBA213E0C3C9E90AC5F160597DDB6DC8 /* JXMediaBrowser-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6D613C601B056409EB08A6897819E1D2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3212113385A8FBBDB272BD23C409FF61 /* Foundation.framework */; };
 		809A2DC47A30152E7CCF8486D13F6305 /* Pods-JXMediaBrowser_Example-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 1B9592216B790F77E832A5A32C09B4C0 /* Pods-JXMediaBrowser_Example-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		967B8AFC2661D8740003B8EA /* JXListViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 967B8AFB2661D8740003B8EA /* JXListViewDelegate.swift */; };
 		A2A51F9917753747F4445B8E5F15F39F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3212113385A8FBBDB272BD23C409FF61 /* Foundation.framework */; };
 		AA3BED7E496F941447143FE3EFD1DB09 /* Pods-JXMediaBrowser_Tests-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 444A826D8624DE333C11EDF599670184 /* Pods-JXMediaBrowser_Tests-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B0236FF5BB2C6EB68D9A0DCE6B809A27 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3212113385A8FBBDB272BD23C409FF61 /* Foundation.framework */; };
@@ -40,24 +41,25 @@
 
 /* Begin PBXFileReference section */
 		0EE7176BD0DDC17C82486F09C5B6E6DD /* Pods-JXMediaBrowser_Example-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-JXMediaBrowser_Example-frameworks.sh"; sourceTree = "<group>"; };
-		10541D71C256628A351EA117C18237AF /* JXMediaBrowser.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; path = JXMediaBrowser.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		10541D71C256628A351EA117C18237AF /* JXMediaBrowser.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; path = JXMediaBrowser.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		1B9592216B790F77E832A5A32C09B4C0 /* Pods-JXMediaBrowser_Example-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-JXMediaBrowser_Example-umbrella.h"; sourceTree = "<group>"; };
 		3212113385A8FBBDB272BD23C409FF61 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.2.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		33D4971006E6E1BFEFCD9E0C20030257 /* JXMediaUtil.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JXMediaUtil.swift; path = JXMediaBrowser/Classes/JXMediaUtil.swift; sourceTree = "<group>"; };
 		3EB882CBB2300D006D1886F2413BAB77 /* JXImageCell.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JXImageCell.swift; path = JXMediaBrowser/Classes/JXImageCell.swift; sourceTree = "<group>"; };
 		444A826D8624DE333C11EDF599670184 /* Pods-JXMediaBrowser_Tests-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-JXMediaBrowser_Tests-umbrella.h"; sourceTree = "<group>"; };
-		4A512D70E1DDD6B992E3F191DB9B42F1 /* Pods_JXMediaBrowser_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Pods_JXMediaBrowser_Example.framework; path = "Pods-JXMediaBrowser_Example.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4A512D70E1DDD6B992E3F191DB9B42F1 /* Pods_JXMediaBrowser_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_JXMediaBrowser_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		511E2EC52C526152212FDD1921CE64DC /* JXMediaBrowser-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "JXMediaBrowser-dummy.m"; sourceTree = "<group>"; };
 		5B020765070A39B34BFDD29E0CBF3A60 /* JXMediaBrowser.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = JXMediaBrowser.xcconfig; sourceTree = "<group>"; };
 		6A7DCF27294E81BE0A60186BA5600394 /* Pods-JXMediaBrowser_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-JXMediaBrowser_Example.debug.xcconfig"; sourceTree = "<group>"; };
-		75DABC6AF9E2C0B37408AACDEE66F155 /* JXMediaBrowser.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = JXMediaBrowser.framework; path = JXMediaBrowser.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		75DABC6AF9E2C0B37408AACDEE66F155 /* JXMediaBrowser.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = JXMediaBrowser.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7AD2CFEDB613A66093F197D6F2B33A88 /* Pods-JXMediaBrowser_Tests-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-JXMediaBrowser_Tests-acknowledgements.markdown"; sourceTree = "<group>"; };
 		7C8D979631FFB0068999DE49B54298F3 /* Pods-JXMediaBrowser_Tests-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-JXMediaBrowser_Tests-Info.plist"; sourceTree = "<group>"; };
 		85F8742CD67D749637DBCA7F08FBB85D /* Pods-JXMediaBrowser_Example.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-JXMediaBrowser_Example.modulemap"; sourceTree = "<group>"; };
-		86C5A5139C16E93A7F9E4E129CF48A99 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; path = README.md; sourceTree = "<group>"; };
-		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		86C5A5139C16E93A7F9E4E129CF48A99 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		967B8AFB2661D8740003B8EA /* JXListViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = JXListViewDelegate.swift; path = JXMediaBrowser/Classes/JXListViewDelegate.swift; sourceTree = "<group>"; };
+		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		A7A82E5FB6E4E71289DEE1C08B7B226E /* Pods-JXMediaBrowser_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-JXMediaBrowser_Tests.release.xcconfig"; sourceTree = "<group>"; };
-		AA2943FD385FA77EF3A1EB8B0690DB2F /* Pods_JXMediaBrowser_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Pods_JXMediaBrowser_Tests.framework; path = "Pods-JXMediaBrowser_Tests.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA2943FD385FA77EF3A1EB8B0690DB2F /* Pods_JXMediaBrowser_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_JXMediaBrowser_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA7D49BD7AD3BFC33CB60846139C353F /* Pods-JXMediaBrowser_Example-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-JXMediaBrowser_Example-acknowledgements.plist"; sourceTree = "<group>"; };
 		B0155DB3D15C2717E6CB6820839509C7 /* Pods-JXMediaBrowser_Tests-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-JXMediaBrowser_Tests-acknowledgements.plist"; sourceTree = "<group>"; };
 		B256B79CCB6BAE5A260E354EAE8716AE /* Pods-JXMediaBrowser_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-JXMediaBrowser_Example.release.xcconfig"; sourceTree = "<group>"; };
@@ -69,7 +71,7 @@
 		D2706F2E5D2246392A9CF951B4891C0F /* Pods-JXMediaBrowser_Tests.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-JXMediaBrowser_Tests.modulemap"; sourceTree = "<group>"; };
 		DD81CF6BDBC928767852ADC74FF405C2 /* Pods-JXMediaBrowser_Tests-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-JXMediaBrowser_Tests-dummy.m"; sourceTree = "<group>"; };
 		E4EA8FB6FD964D52098B7140DEEEA560 /* Pods-JXMediaBrowser_Example-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-JXMediaBrowser_Example-Info.plist"; sourceTree = "<group>"; };
-		ECBA33E70DC68BCFC951602204571627 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; path = LICENSE; sourceTree = "<group>"; };
+		ECBA33E70DC68BCFC951602204571627 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		EDC6897EEF47C7C97A0DAB94A898A1EA /* Pods-JXMediaBrowser_Example-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-JXMediaBrowser_Example-dummy.m"; sourceTree = "<group>"; };
 		F5167B982F90F8BCD941555699261B26 /* JXListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = JXListView.swift; path = JXMediaBrowser/Classes/JXListView.swift; sourceTree = "<group>"; };
 		FF325745ECFFAF7F7AB73D10E01D6177 /* JXMediaBrowser-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "JXMediaBrowser-prefix.pch"; sourceTree = "<group>"; };
@@ -108,6 +110,7 @@
 			children = (
 				3EB882CBB2300D006D1886F2413BAB77 /* JXImageCell.swift */,
 				F5167B982F90F8BCD941555699261B26 /* JXListView.swift */,
+				967B8AFB2661D8740003B8EA /* JXListViewDelegate.swift */,
 				33D4971006E6E1BFEFCD9E0C20030257 /* JXMediaUtil.swift */,
 				7646723028392653F1F4E4797CE811D3 /* Pod */,
 				3A12518F64E1EEE0F6C86EFB06476D8D /* Support Files */,
@@ -387,6 +390,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				967B8AFC2661D8740003B8EA /* JXListViewDelegate.swift in Sources */,
 				1C9255BABA2F386904267D43D30EBCB5 /* JXImageCell.swift in Sources */,
 				FBBD059DD831C8B7000850B2E05F3199 /* JXListView.swift in Sources */,
 				F3E0DEB674FD04AD932BC84E4F8D1364 /* JXMediaBrowser-dummy.m in Sources */,
@@ -595,8 +599,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.0;
 				SYMROOT = "${SRCROOT}/../build";
 			};
