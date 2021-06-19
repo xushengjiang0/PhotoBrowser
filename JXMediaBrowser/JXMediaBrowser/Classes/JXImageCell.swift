@@ -21,11 +21,18 @@ open class JXImageCell: UICollectionViewCell {
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
+        
+        self.imageView.frame = self.contentView.bounds
+        self.imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         self.contentView.addSubview(self.imageView)
         
         self.contentView.backgroundColor = UIColor.red
         self.contentView.layer.borderWidth = 2
         self.contentView.layer.borderColor = UIColor.black.cgColor
+    }
+    
+    open func reload(with image: UIImage) {
+        self.imageView.image = image
     }
     
 }

@@ -11,6 +11,10 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
     
     // MARK: - 公开属性
     
+    /// 代理。可选。本类支持闭包回调和代理回调，用户可二选一。
+    /// 如果用户同时实现了闭包和代理，则忽略代理，只回调闭包
+    weak public var delegate: JXListViewDelegate?
+    
     /// 滑动方向
     public var scrollDirection: UICollectionView.ScrollDirection {
         set {
@@ -78,7 +82,7 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
         }
     }
     
-    /// 是否开启翻页模式。默认开启
+    /// 是否开启翻页模式。默认开启：true
     public var isPagingEnabled: Bool = true
     
     // MARK: - 公开方法
@@ -93,13 +97,30 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
         self.collectionView.register(cellClass, forCellWithReuseIdentifier: identifier)
     }
     
-    /// 取复用Cell
+    /// 取复用Cell。调本方法需要先注册Cell
     open func dequeueReusableCell(withReuseIdentifier identifier: String, for index: Int) -> UICollectionViewCell {
         let indexPath = IndexPath(item: index, section: 0)
         let cell = self.collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath)
         return cell
     }
     
+    /// 取复用Cell。自动注册传入的Cell
+    open func dequeueReusableCell<T: UICollectionViewCell>(withClass clazz: T.Type, for index: Int) -> T {
+        let identifier = "\(clazz)"
+        // 若没注册，自动注册Cell
+        if !didRegisterCells.contains(identifier) {
+            didRegisterCells.append(identifier)
+            self.collectionView.register(clazz.self, forCellWithReuseIdentifier: identifier)
+            JXMediaUtil.log(message: "注册\(identifier)成功")
+        }
+        let indexPath = IndexPath(item: index, section: 0)
+        guard let cell = self.collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as? T else {
+            fatalError("取复用Cell失败！\(clazz.self) ")
+        }
+        return cell
+    }
+    
+    private lazy var didRegisterCells = [String]()
     
     // MARK: - 刷新界面触发的回调
     
@@ -131,10 +152,10 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
     public var willBeginDragging: ((_ scrollView: UIScrollView) -> Void)?
     
     /// 即将停止拖动
-    public var willEndDragging: ((_ scrollView: UIScrollView) -> Void)?
+    public var willEndDragging: ((_ scrollView: UIScrollView, _ velocity: CGPoint, _ targetContentOffset: UnsafeMutablePointer<CGPoint>) -> Void)?
     
     /// 已经停止拖动
-    public var didEndDragging: ((_ scrollView: UIScrollView) -> Void)?
+    public var didEndDragging: ((_ scrollView: UIScrollView, _ decelerate: Bool) -> Void)?
     
     /// 即将开始滑动减速
     public var willBeginDecelerating: ((_ scrollView: UIScrollView) -> Void)?
@@ -150,14 +171,21 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
 
     open func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         var number = 0
-        if let block = self.numberOfItems {
-            number = block()
+        if let closure = self.numberOfItems {
+            number = closure()
+        } else if let dlg = self.delegate {
+            number = dlg.numberOfItems(in: self)
         }
         return number
     }
     
     open func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let reuseCell = self.cellForItemAtIndex?(self, indexPath.item)
+        var reuseCell: UICollectionViewCell?
+        if let closure = self.cellForItemAtIndex {
+            reuseCell = closure(self, indexPath.item)
+        } else if let dlg = self.delegate {
+            reuseCell = dlg.listView(self, cellForItemAt: indexPath.item)
+        }
         assert(reuseCell != nil, "请提供可复用的Cell!")
         let cell = reuseCell ?? UICollectionViewCell()
         return cell
@@ -168,29 +196,34 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
     
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: false)
-        self.didSelectItemAtIndex?(indexPath.item)
+        if let closure = self.didSelectItemAtIndex {
+            closure(indexPath.item)
+        } else if let dlg = self.delegate {
+            dlg.listView(self, didSelectItemAt: indexPath.item)
+        }
     }
     
     public func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        self.willDisplayCellAtIndex?(cell, indexPath.item)
+        if let closure = self.willDisplayCellAtIndex {
+            closure(cell, indexPath.item)
+        } else if let dlg = self.delegate {
+            dlg.listView(self, willDisplay: cell, forItemAt: indexPath.item)
+        }
     }
     
     public func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        self.didEndDisplayingCellAtIndex?(cell, indexPath.item)
+        if let closure = self.didEndDisplayingCellAtIndex {
+            closure(cell, indexPath.item)
+        } else if let dlg = self.delegate {
+            dlg.listView(self, didEndDisplaying: cell, forItemAt: indexPath.item)
+        }
     }
     
     // MARK: - FlowLayout Delegate
     
     /// 项Size
     public func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
-        var length: CGFloat = 0
-        if let block = self.lengthForItemAtIndex {
-            length = block(self, indexPath.item)
-        } else {
-            length = self.itemLength
-        }
-        
+        let length: CGFloat = self.getItemLength(at: indexPath.item)
         var size = CGSize.zero
         switch self.scrollDirection {
         case .horizontal:
@@ -203,27 +236,64 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
         return size
     }
     
+    /// 从闭包或代理取项长度
+    private func getItemLength(at index: Int) -> CGFloat {
+        var length: CGFloat = 0
+        if let closure = self.lengthForItemAtIndex {
+            length = closure(self, index)
+        } else if let dlg = self.delegate {
+            length = dlg.listView(self, lengthForItemAt: index)
+        } else {
+            length = self.itemLength
+        }
+        return length
+    }
+    
     // MARK: - UIScrollView Delegate
     
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        self.didScroll?(scrollView)
+        if let closure = self.didScroll {
+            closure(scrollView)
+        }
+        else if let dlg = self.delegate {
+            dlg.listView(self, didScroll: scrollView)
+        }
     }
     
     /// drag前的cell的位置
     private var indexOfCellBeforeDragging: Int = 0
     
     public func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        let pageWidth = self.itemLength + self.itemSpacing
-        let proportionalOffset = collectionView.contentOffset.x / pageWidth
-        indexOfCellBeforeDragging = Int(round(proportionalOffset))
-        self.willBeginDragging?(scrollView)
+        if let closure = self.willBeginDragging {
+            closure(scrollView)
+        } else if let dlg = self.delegate {
+            dlg.listView(self, willBeginDragging: scrollView)
+        }
+        if self.isPagingEnabled {
+            self.indexOfCellBeforeDragging = self.currentItemIndex()
+            JXMediaUtil.log(message: "WillBeginDragging currentIndex:\(self.indexOfCellBeforeDragging)")
+        }
+    }
+    
+    /// 求当前居中显示的项的index
+    private func currentItemIndex() -> Int {
+        let offset = self.collectionView.contentOffset
+        let centerX = self.collectionView.frame.midX
+        let centerY = self.collectionView.frame.midY
+        let midPoint = CGPoint(x: offset.x + centerX, y: offset.y + centerY)
+        let indexPath = self.collectionView.indexPathForItem(at: midPoint)
+        return indexPath?.item ?? 0
     }
     
     public func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        if let closure = self.willEndDragging {
+            closure(scrollView, velocity, targetContentOffset)
+        } else if let dlg = self.delegate {
+            dlg.listView(self, willEndDragging: scrollView, velocity: velocity, targetContentOffset: targetContentOffset)
+        }
         if self.isPagingEnabled {
             self.scrollPaging(withVelocity: velocity, targetContentOffset: targetContentOffset)
         }
-        self.willEndDragging?(scrollView);
     }
     
     // 实现翻页效果
@@ -253,19 +323,35 @@ open class JXListView : UIView, UICollectionViewDataSource, UICollectionViewDele
     }
     
     public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        self.didEndDragging?(scrollView)
+        if let closure = self.didEndDragging {
+            closure(scrollView, decelerate)
+        } else if let dlg = self.delegate {
+            dlg.listView(self, didEndDragging: scrollView, willDecelerate: decelerate)
+        }
     }
     
     public func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView) {
-        self.willBeginDecelerating?(scrollView)
+        if let closure = self.willBeginDecelerating {
+            closure(scrollView)
+        } else if let dlg = self.delegate {
+            dlg.listView(self, willBeginDecelerating: scrollView)
+        }
     }
     
     public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        self.didEndDecelerating?(scrollView)
+        if let closure = self.didEndDecelerating {
+            closure(scrollView)
+        } else if let dlg = self.delegate {
+            dlg.listView(self, didEndDecelerating: scrollView)
+        }
     }
     
     public func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        self.didEndScrollingAnimation?(scrollView)
+        if let closure = self.didEndScrollingAnimation {
+            closure(scrollView)
+        } else if let dlg = self.delegate {
+            dlg.listView(self, didEndScrollingAnimation: scrollView)
+        }
     }
     
     // MARK: - 初始化

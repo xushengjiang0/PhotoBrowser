@@ -7,12 +7,12 @@
 
 import UIKit
 
-public protocol JXListViewDelegate {
+public protocol JXListViewDelegate: NSObjectProtocol {
     
     // MARK: - 刷新界面触发的回调
     
     /// 共有多少项。必选实现。
-    func numberOfItems() -> Int
+    func numberOfItems(in listView: JXListView) -> Int
     
     /// 取指定项的视图。必选实现。
     func listView(_ listView: JXListView, cellForItemAt index: Int) -> UICollectionViewCell
@@ -32,23 +32,23 @@ public protocol JXListViewDelegate {
     func listView(_ listView: JXListView, didSelectItemAt index: Int)
     
     /// 视图滑动
-    func scrollViewDidScroll(_ scrollView: UIScrollView)
+    func listView(_ listView: JXListView, didScroll scrollView: UIScrollView)
     
     /// 即将开始拖动
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView)
+    func listView(_ listView: JXListView, willBeginDragging scrollView: UIScrollView)
     
     /// 即将停止拖动
-    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>)
+    func listView(_ listView: JXListView, willEndDragging scrollView: UIScrollView, velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>)
     
     /// 已经停止拖动
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool)
+    func listView(_ listView: JXListView, didEndDragging scrollView: UIScrollView, willDecelerate decelerate: Bool)
     
     /// 即将开始滑动减速
-    func scrollViewWillBeginDecelerating(_ scrollView: UIScrollView)
+    func listView(_ listView: JXListView, willBeginDecelerating scrollView: UIScrollView)
     
     /// 已经停止滑动减速
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView)
+    func listView(_ listView: JXListView, didEndDecelerating scrollView: UIScrollView)
     
     /// 已经停止滑动动画
-    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView)
+    func listView(_ listView: JXListView, didEndScrollingAnimation scrollView: UIScrollView)
 }
